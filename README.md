@@ -212,7 +212,30 @@ pip install -e .
 4. Click the play/start button to execute the pipeline
 5. This will fetch data from GCP and save it to PostgreSQL
 
-### 13. Setup Monitoring with Prometheus & Grafana
+### 13. Run Training Pipeline
+
+**Important**: After the data pipeline completes, you need to train the model and set up the feature store.
+
+```bash
+# Make sure both Astro and Redis containers are running
+# Run the training pipeline to:
+# - Read data from PostgreSQL
+# - Preprocess the data
+# - Train the ML model
+# - Store features in Redis feature store
+# - Save the trained model
+
+python pipeline/training_pipeline.py
+
+# You can also run data_ingestion.py, data_processing.py, feature_store.py and model_training.py initally to test their working.
+```
+
+**Note**: This step is crucial as it:
+- Creates the trained model (`artifacts/models/random_forest_model.pkl`)
+- Populates the Redis feature store with processed features
+- Sets up the reference data for drift detection
+
+### 14. Setup Monitoring with Prometheus & Grafana
 
 Ensure you have `docker-compose.yml` and `prometheus.yml` files in your project folder, then run:
 
@@ -224,14 +247,14 @@ This will start:
 - Prometheus (accessible at `http://localhost:9090`)
 - Grafana (accessible at `http://localhost:3000`)
 
-### 14. Configure Prometheus Monitoring
+### 15. Configure Prometheus Monitoring
 
 1. Start your Flask application (`app.py`)
 2. Go to `http://localhost:9090`
 3. Navigate to Status → Targets
 4. Verify that `http://host.docker.internal:5000/metrics` endpoint state is UP
 
-### 15. Configure Grafana Dashboard
+### 16. Configure Grafana Dashboard
 
 1. Go to `http://localhost:3000` (Grafana dashboard)
 2. Navigate to Connections → Data Sources
