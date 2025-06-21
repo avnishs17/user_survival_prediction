@@ -289,7 +289,6 @@ titanic_survival_prediction/
 ├── src/                # Source code
 ├── static/             # Static files for web UI
 ├── templates/          # HTML templates
-├── tests/              # Test files
 ├── app.py              # Flask application
 ├── docker-compose.yml  # Docker services configuration
 ├── prometheus.yml      # Prometheus configuration
