@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚢</text></svg>">
+    <title>🚢 Titanic Survival Predictor</title>
+</head>
+<body>
+    <div class="background-animation"></div>
+    
+    <header class="header">
+        <div class="header-content">
+            <div class="ship-icon">🚢</div>
+            <h1>Titanic Survival Predictor</h1>
+            <p class="subtitle">Discover your fate aboard the legendary ship using advanced AI</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-user-circle"></i>
+                <h2>Passenger Information</h2>
+                <p>Enter your details to predict survival probability</p>
+            </div>            <form action="/predict" method="POST" class="prediction-form" id="predictionForm">
+                <!-- Personal Information Section -->
+                <div class="form-section">
+                    <h3><i class="fas fa-user"></i> Personal Details</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="Age"><i class="fas fa-birthday-cake"></i> Age</label>
+                            <input type="number" step="0.1" id="Age" name="Age" placeholder="e.g., 25" min="0" max="100" required>
+                            <span class="helper-text">Enter age in years</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="Sex"><i class="fas fa-venus-mars"></i> Gender</label>
+                            <select id="Sex" name="Sex" required>
+                                <option value="">Select Gender</option>
+                                <option value="0">👨 Male</option>
+                                <option value="1">👩 Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="Title"><i class="fas fa-crown"></i> Social Title</label>
+                            <select id="Title" name="Title" required>
+                                <option value="">Select Title</option>
+                                <option value="0">Mr.</option>
+                                <option value="1">Mrs.</option>
+                                <option value="2">Miss</option>
+                                <option value="3">Master</option>
+                                <option value="4">Dr.</option>
+                                <option value="5">Rev.</option>
+                                <option value="6">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="Familysize"><i class="fas fa-users"></i> Family Size</label>
+                            <input type="number" id="Familysize" name="Familysize" placeholder="e.g., 3" min="1" max="20" required>
+                            <span class="helper-text">Total family members aboard</span>
+                        </div>
+                    </div>
+
+                    <div class="form-row single">
+                        <div class="form-group">
+                            <label for="Isalone"><i class="fas fa-user-friends"></i> Traveling Status</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="Isalone" value="1" required>
+                                    <span class="radio-custom"></span>
+                                    <span class="radio-text">🚶 Traveling Alone</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="Isalone" value="0" required>
+                                    <span class="radio-custom"></span>
+                                    <span class="radio-text">👨‍👩‍👧‍👦 With Family/Friends</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ticket Information Section -->
+                <div class="form-section">
+                    <h3><i class="fas fa-ticket-alt"></i> Ticket & Cabin Details</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="Pclass"><i class="fas fa-star"></i> Passenger Class</label>
+                            <select id="Pclass" name="Pclass" required onchange="updateFareGuidance()">
+                                <option value="">Select Class</option>
+                                <option value="1">🥇 First Class</option>
+                                <option value="2">🥈 Second Class</option>
+                                <option value="3">🥉 Third Class</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="Fare"><i class="fas fa-pound-sign"></i> Ticket Fare</label>
+                            <input type="number" step="0.01" id="Fare" name="Fare" placeholder="e.g., 30.50" min="0" required onchange="calculateDerivedValues()">
+                            <span class="helper-text" id="fareGuidance">Fare paid for the ticket</span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="Embarked"><i class="fas fa-anchor"></i> Port of Embarkation</label>
+                            <select id="Embarked" name="Embarked" required>
+                                <option value="">Select Port</option>
+                                <option value="0">🇫🇷 Cherbourg</option>
+                                <option value="1">🇮🇪 Queenstown</option>
+                                <option value="2">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Southampton</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="HasCabin"><i class="fas fa-bed"></i> Cabin Assignment</label>
+                            <div class="radio-group compact">
+                                <label class="radio-option">
+                                    <input type="radio" name="HasCabin" value="1" required>
+                                    <span class="radio-custom"></span>
+                                    <span class="radio-text">🏠 Yes</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="HasCabin" value="0" required>
+                                    <span class="radio-custom"></span>
+                                    <span class="radio-text">🚫 No</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Auto-calculated Fields (Hidden) -->
+                <input type="hidden" id="Pclass_Fare" name="Pclass_Fare">
+                <input type="hidden" id="Age_Fare" name="Age_Fare">
+
+                <!-- Submit Section - Full Width -->
+                <div class="form-section full-width">
+                    <div class="submit-section">
+                        <button type="submit" class="btn-predict">
+                            <i class="fas fa-crystal-ball"></i>
+                            <span>Predict My Survival</span>
+                            <div class="btn-ripple"></div>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Dynamic prediction result will be inserted here -->
+            <div class="prediction-result"></div>
+        </div>        <div class="info-section">
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4><i class="fas fa-info-circle"></i> About This Predictor</h4>
+                    <p>This AI model analyzes historical Titanic passenger data to predict survival probability based on various factors including passenger class, age, gender, and family status.</p>
+                </div>
+                <div class="info-card">
+                    <h4><i class="fas fa-chart-line"></i> Key Factors</h4>
+                    <p>Historical data shows that gender, passenger class, age, and family composition were the most significant factors determining survival aboard the Titanic.</p>
+                </div>
+            </div>
+        </div>
+    </div>    <footer class="footer">
+        <p>Built with ❤️ using Machine Learning | Historical data analysis</p>
+    </footer>
+
+    <script src="/static/script.js"></script>    <script>
+        function calculateDerivedValues() {
+            const pclass = document.getElementById('Pclass').value;
+            const fare = document.getElementById('Fare').value;
+            const age = document.getElementById('Age').value;
+
+            if (pclass && fare) {
+                document.getElementById('Pclass_Fare').value = parseFloat(pclass) * parseFloat(fare);
+            }
+            if (age && fare) {
+                document.getElementById('Age_Fare').value = parseFloat(age) * parseFloat(fare);
+            }
+        }
+
+        function updateFareGuidance() {
+            const pclass = document.getElementById('Pclass').value;
+            const guidance = document.getElementById('fareGuidance');
+            
+            switch(pclass) {
+                case '1':
+                    guidance.textContent = 'First class: typically £30-500+';
+                    break;
+                case '2':
+                    guidance.textContent = 'Second class: typically £10-30';
+                    break;
+                case '3':
+                    guidance.textContent = 'Third class: typically £3-15';
+                    break;
+                default:
+                    guidance.textContent = 'Fare paid for the ticket';
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('predictionForm').reset();
+            const resultSection = document.querySelector('.prediction-result');
+            if (resultSection) {
+                resultSection.classList.remove('show');
+                resultSection.innerHTML = '';
+            }
+        }
+
+        function showResult(prediction_text) {
+            const resultSection = document.querySelector('.prediction-result');
+            const isSurvived = prediction_text.includes('Survived');
+            
+            const resultHTML = `
+                <div class="result-content">
+                    <div class="result-icon ${isSurvived ? 'survived' : 'not-survived'}">
+                        <i class="fas fa-${isSurvived ? 'heart' : 'anchor'}"></i>
+                    </div>
+                    <h3 class="result-title ${isSurvived ? 'survived' : 'not-survived'}">
+                        ${isSurvived ? 'Congratulations!' : 'A Tragic Fate'}
+                    </h3>
+                    <p class="result-text">${prediction_text}</p>
+                    <div class="survival-message">
+                        <p>${isSurvived ? 'You would have made it to safety! 🛟' : 'Your journey would have ended with the ship 🌊'}</p>
+                    </div>
+                </div>
+                <button class="btn-reset" onclick="resetForm()">
+                    <i class="fas fa-redo"></i> Try Different Scenario
+                </button>
+            `;
+            
+            resultSection.innerHTML = resultHTML;
+            resultSection.classList.add('show');
+            
+            // Smooth scroll to results
+            setTimeout(() => {
+                resultSection.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+            }, 100);
+        }
+
+        function showError(error) {
+            const resultSection = document.querySelector('.prediction-result');
+            const errorHTML = `
+                <div class="result-content">
+                    <div class="result-icon not-survived">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="result-title not-survived">Error</h3>
+                    <p class="result-text">An error occurred: ${error}</p>
+                </div>
+                <button class="btn-reset" onclick="resetForm()">
+                    <i class="fas fa-redo"></i> Try Again
+                </button>
+            `;
+            
+            resultSection.innerHTML = errorHTML;
+            resultSection.classList.add('show');
+        }
+
+        // Auto-calculate derived values when inputs change
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('Pclass').addEventListener('change', calculateDerivedValues);
+            document.getElementById('Fare').addEventListener('input', calculateDerivedValues);
+            document.getElementById('Age').addEventListener('input', calculateDerivedValues);
+
+            // AJAX form submission
+            document.getElementById('predictionForm').addEventListener('submit', function(e) {
+                e.preventDefault(); // Prevent page refresh
+                
+                const button = document.querySelector('.btn-predict');
+                const originalContent = button.innerHTML;
+                
+                // Show loading state
+                button.classList.add('loading');
+                button.disabled = true;
+                
+                // Collect form data
+                const formData = new FormData(this);
+                
+                // Make AJAX request
+                fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Reset button state
+                    button.classList.remove('loading');
+                    button.disabled = false;
+                    
+                    if (data.error) {
+                        showError(data.error);
+                    } else {
+                        showResult(data.prediction_text);
+                    }
+                })
+                .catch(error => {
+                    // Reset button state
+                    button.classList.remove('loading');
+                    button.disabled = false;
+                    showError('Network error occurred. Please try again.');
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
